@@ -1,163 +1,160 @@
 <!doctype html>
 
 <html lang="en">
+
 <head>
-  <meta charset="utf-8">
+    <meta charset="utf-8">
 
-  <title>Atlanta Urban Geographies</title>
+    <title>Atlanta Urban Geographies</title>
 
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.2.0/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.2.0/dist/leaflet.css" />
 
-  <style>
+    <style>
+        body,
+        #map {
+            position: absolute;
+            width: 100%;
+            top: 0;
+            bottom: 0;
+            margin: 0;
+            padding: 0;
+            background: rgba(34, 33, 33, .75);
+        }
 
-  body, #map {
-        position: absolute;
-        width: 100%;
-        top: 0;
-        bottom: 0;
-        margin: 0;
-        padding: 0;
-        background: rgba(34, 33, 33, .75);
-    }
-
-    .tooltip {
-    color: white;
-    background: #295b97;
-    border: 0;
-    font-size: 1.3em;
-}
-
-  </style>
+        .tooltip {
+            color: white;
+            background: #295b97;
+            border: 0;
+            font-size: 1.3em;
+        }
+    </style>
 
 </head>
 
 <body>
 
-  <div id="map"></div>
+    <div id="map"></div>
 
-  <script src="https://unpkg.com/leaflet@1.2.0/dist/leaflet.js"></script>
-  <script
-  src="https://code.jquery.com/jquery-3.2.1.min.js"
-  integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
-  crossorigin="anonymous"></script>
-  <script>
+    <script src="https://unpkg.com/leaflet@1.2.0/dist/leaflet.js"></script>
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
+        crossorigin="anonymous"></script>
+    <script>
+        var options = {
+            center: [33.726, -84.365],
+            zoom: 11,
+            minZoom: 9,
+            maxZoom: 16,
+            maxBounds: [
+                [33.911, -84.032],
+                [33.620, -84.772]
+            ]
+        };
+        var map = L.map('map', options);
 
-   var options = {
-    center: [33.726,-84.365],
-    zoom: 11,
-    minZoom: 9,
-    maxZoom: 16,
-    maxBounds: [
-        [33.911, -84.032],
-        [33.620, -84.772]
-    ]
-};
-var map = L.map('map', options);
+        var urbanOptions = {
+            color: '#295b97',
+            weight: 0
+        }
 
-var urbanOptions = {
-    color: '#295b97',
-    weight: 0
-}
+        var cityLimitsOptions = {
+            fillOpacity: 0,
+            color: '#040d18',
+            opacity: 1,
+            weight: 3
+        };
 
-var cityLimitsOptions = {
-    fillOpacity: 0,
-    color: '#040d18',
-    opacity: 1,
-    weight: 3
-};
+        var neighborhoodOptions = {
+            fillOpacity: .3,
+            fillColor: '#e0ecf9',
+            color: '#151f2b',
+            weight: 1.7,
+            opacity: 1
+        };
 
-var neighborhoodOptions = {
-    fillOpacity: .3,
-    fillColor: '#e0ecf9',
-    color: '#151f2b',
-    weight: 1.7,
-    opacity: 1
-};
+        var subwayOptions = {
+            color: '#ff6e00',
+            weight: 2,
+            opacity: 1
+        }
 
-var subwayOptions = {
-    color: '#ff6e00',
-    weight: 2,
-    opacity: 1
-}
+        var busOptions = {
+            color: '#f0f062',
+            weight: .1,
+            opacity: 1
+        }
 
-var busOptions = {
-    color: '#f0f062',
-    weight: .1,
-    opacity: 1
-}
+        var tramOptions = {
+            color: '#ff6e00',
+            weight: 2
+        }
 
-var tramOptions = {
-    color: '#ff6e00',
-    weight: 2
-}
-
-var otherRoutes = {
-    color: '#ff6e00'
-}
+        var otherRoutes = {
+            color: '#ff6e00'
+        }
 
 
-$.when(
-  $.getJSON('data/city-limits.json'),
-  $.getJSON('data/neighborhoods-filtered3.json'),
-  $.getJSON('data/transit-shaped.json'),
-  $.getJSON('data/atlanta-urban.json')
-).done(function(cityLimitsData, neighborhoodsData, transitData, urbanData) {
-  drawMap(cityLimitsData, neighborhoodsData, transitData, urbanData);
-});
-
-map.createPane('labels');
-map.getPane('labels').style.zIndex = 650;
-map.getPane('labels').style.pointerEvents = 'none';
-
-L.tileLayer('http://{s}.basemaps.cartocdn.com/dark_only_labels/{z}/{x}/{y}.png', {
-        attribution: '©OpenStreetMap, ©CartoDB',
-        pane: 'labels'
-}).addTo(map);
-
-function drawMap(cityLimitsData, neighborhoodsData, transitData, urbanData) {
-  L.geoJson(urbanData, {
-    style: urbanOptions
-  }).addTo(map);
-  L.geoJson(cityLimitsData, {
-    style: cityLimitsOptions
-  }).addTo(map);
-  L.geoJson(neighborhoodsData, {
-    style: neighborhoodOptions,
-    onEachFeature: function(feature, layer) {
-        // shortut to variable
-        var tooltip = feature.properties.NAME;
-        // bind the tooltip to the layer
-        layer.bindTooltip(tooltip, {
-            sticky: true,
-            className: 'tooltip'
+        $.when(
+            $.getJSON('data/city-limits.json'),
+            $.getJSON('data/neighborhoods-filtered3.json'),
+            $.getJSON('data/transit-shaped.json'),
+            $.getJSON('data/atlanta-urban.json')
+        ).done(function (cityLimitsData, neighborhoodsData, transitData, urbanData) {
+            drawMap(cityLimitsData, neighborhoodsData, transitData, urbanData);
         });
-        // visual affordance on mouseover
-        layer.on('mouseover', function(e) {
-            this.setStyle({
-                fillOpacity: .1
-            });
-        });
-        // use existing option to reset the styles on mouseout
-        layer.on('mouseout', function(e) {
-            this.setStyle(neighborhoodOptions);
-        });
-    }
-  }).addTo(map);
-  L.geoJson(transitData, {
-    // style each feature
-    style: function(feature) {
-        // shortcut to variable
-        var type = feature.properties.type;
 
-        // assign options
-        return type === 'SUBWAY' ? subwayOptions :
-                type === 'Bus' ? busOptions :
-                type === 'TRAM' ? tramOptions: otherRoutes;
-    }
-  }).addTo(map);
-  
-}
+        map.createPane('labels');
+        map.getPane('labels').style.zIndex = 650;
+        map.getPane('labels').style.pointerEvents = 'none';
 
-  </script>
+        L.tileLayer('http://{s}.basemaps.cartocdn.com/dark_only_labels/{z}/{x}/{y}.png', {
+            attribution: '©OpenStreetMap, ©CartoDB',
+            pane: 'labels'
+        }).addTo(map);
+
+        function drawMap(cityLimitsData, neighborhoodsData, transitData, urbanData) {
+            L.geoJson(urbanData, {
+                style: urbanOptions
+            }).addTo(map);
+            L.geoJson(cityLimitsData, {
+                style: cityLimitsOptions
+            }).addTo(map);
+            L.geoJson(neighborhoodsData, {
+                style: neighborhoodOptions,
+                onEachFeature: function (feature, layer) {
+                    // shortut to variable
+                    var tooltip = feature.properties.NAME;
+                    // bind the tooltip to the layer
+                    layer.bindTooltip(tooltip, {
+                        sticky: true,
+                        className: 'tooltip'
+                    });
+                    // visual affordance on mouseover
+                    layer.on('mouseover', function (e) {
+                        this.setStyle({
+                            fillOpacity: .1
+                        });
+                    });
+                    // use existing option to reset the styles on mouseout
+                    layer.on('mouseout', function (e) {
+                        this.setStyle(neighborhoodOptions);
+                    });
+                }
+            }).addTo(map);
+            L.geoJson(transitData, {
+                // style each feature
+                style: function (feature) {
+                    // shortcut to variable
+                    var type = feature.properties.type;
+
+                    // assign options
+                    return type === 'SUBWAY' ? subwayOptions :
+                        type === 'Bus' ? busOptions :
+                        type === 'TRAM' ? tramOptions : otherRoutes;
+                }
+            }).addTo(map);
+
+        }
+    </script>
 </body>
+
 </html>
