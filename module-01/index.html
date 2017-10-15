@@ -26,7 +26,10 @@
   <div id="map"></div>
 
   <script src="https://unpkg.com/leaflet@1.2.0/dist/leaflet.js"></script>
-
+  <script
+  src="https://code.jquery.com/jquery-3.2.1.min.js"
+  integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
+  crossorigin="anonymous"></script>
   <script>
 
    var options = {
@@ -46,6 +49,19 @@ L.tileLayer('https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_all/{z}/{x
     subdomains: 'abcd',
     maxZoom: 19
 }).addTo(map);
+
+$.when(
+  $.getJSON('data/city-limits.json'),
+  $.getJSON('data/neighborhoods.json'),
+  $.getJSON('data/transit.json'),
+  $.getJSON('data/urban.json')
+).done(function(cityLimitsData, neighborhoodsData, transitData, urbanData) {
+  L.geoJson(cityLimitsData).addTo(map);
+  L.geoJson(neighborhoodsData).addTo(map);
+  L.geoJson(transitData).addTo(map);
+  L.geoJson(urbanData).addTo(map);
+});
+
 
   </script>
 </body>
