@@ -51,6 +51,15 @@
         };
         var map = L.map('map', options);
 
+        map.createPane('labels');
+        map.getPane('labels').style.zIndex = 650;
+        map.getPane('labels').style.pointerEvents = 'none';
+
+        L.tileLayer('http://{s}.basemaps.cartocdn.com/dark_only_labels/{z}/{x}/{y}.png', {
+            attribution: '©OpenStreetMap, ©CartoDB',
+            pane: 'labels'
+        }).addTo(map);
+
         var urbanOptions = {
             color: '#295b97',
             weight: 0
@@ -92,7 +101,6 @@
             color: '#ff6e00'
         }
 
-
         $.when(
             $.getJSON('data/city-limits.json'),
             $.getJSON('data/neighborhoods-filtered3.json'),
@@ -102,22 +110,16 @@
             drawMap(cityLimitsData, neighborhoodsData, transitData, urbanData);
         });
 
-        map.createPane('labels');
-        map.getPane('labels').style.zIndex = 650;
-        map.getPane('labels').style.pointerEvents = 'none';
-
-        L.tileLayer('http://{s}.basemaps.cartocdn.com/dark_only_labels/{z}/{x}/{y}.png', {
-            attribution: '©OpenStreetMap, ©CartoDB',
-            pane: 'labels'
-        }).addTo(map);
-
         function drawMap(cityLimitsData, neighborhoodsData, transitData, urbanData) {
+            
             L.geoJson(urbanData, {
                 style: urbanOptions
             }).addTo(map);
+            
             L.geoJson(cityLimitsData, {
                 style: cityLimitsOptions
             }).addTo(map);
+            
             L.geoJson(neighborhoodsData, {
                 style: neighborhoodOptions,
                 onEachFeature: function (feature, layer) {
@@ -140,6 +142,7 @@
                     });
                 }
             }).addTo(map);
+            
             L.geoJson(transitData, {
                 // style each feature
                 style: function (feature) {
@@ -152,7 +155,6 @@
                         type === 'TRAM' ? tramOptions : otherRoutes;
                 }
             }).addTo(map);
-
         }
     </script>
 </body>
